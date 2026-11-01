@@ -6,7 +6,7 @@ export default defineConfig({
 
   reporter: 'html',
 
-  retries: 1,
+  //retries: 1,
 
   timeout: 40 * 1000,
 
@@ -22,7 +22,7 @@ export default defineConfig({
     viewport: null,
     launchOptions: {
       args: ['--start-maximized'],
-      slowMo: 5000
+      slowMo: 1000
     },
     screenshot: 'only-on-failure',
     ignoreHTTPSErrors: true
