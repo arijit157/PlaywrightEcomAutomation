@@ -1,49 +1,31 @@
 const { test, expect } = require('@playwright/test');
+const { LoginPage } = require('./pageobjects/LoginPage');
+const { ProductPage } = require('./pageobjects/ProductPage');
+const { CartPage } = require('./pageobjects/CartPage');
+const { CheckoutPage } = require('./pageobjects/CheckoutPage');
+const { CheckoutPage2 } = require('./pageobjects/CheckoutPage2');
 
-let actualProdName, flag=false;
+let flag=false;
 
 test('Product purchase flow validation', async ({ page }) => {
-    await page.goto('');
-    await expect(page.locator('div.login_logo')).toContainText('Swag Labs');
-    await page.getByPlaceholder('Username').fill('standard_user');
-    await page.getByPlaceholder('Password').fill('secret_sauce');
-    await page.locator('#login-button').click();
-    await page.locator('.inventory_item_name').first().waitFor({ state: 'visible' });
-    let productLocators = await page.locator('.inventory_item').all();
+    let loginPage = new LoginPage(page);
+    await loginPage.login('standard_user', 'secret_sauce',1);
     
-    for(let productLocator of productLocators){
-        actualProdName = await productLocator.locator('.inventory_item_name').textContent();
-        
-        if(actualProdName.includes('Backpack')){
-            await productLocator.getByRole('button', {name:'Add to cart'}).click();
-            break;
-        }
-    }
+    let productToPurchase = 'Sauce Labs Backpack';
+    let productPage = new ProductPage(page);
+    await productPage.addProductToCart(productToPurchase);
 
-    await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
-    await page.locator('.shopping_cart_link').click();
-    await expect(page.locator('span.title')).toContainText('Your Cart');
-    let cartItems = await page.locator('div.cart_item').all();
-    
-    for(let cartItem of cartItems){
-        let cartItemName = await cartItem.locator('.inventory_item_name').textContent();
-        console.log(cartItemName, actualProdName);
-        if(cartItemName.includes(actualProdName)){
-            flag=true;
-            break;
-        }
-    }
+    let cartPage = new CartPage(page);
+    flag = await cartPage.validateCart(productToPurchase);
+
+    let checkoutPage = new CheckoutPage(page);
+    let checkoutPage2 = new CheckoutPage2(page);
 
     if(flag){
-        await page.locator('#checkout').click();
-        await expect(page.locator("span.title")).toContainText('Checkout');
-        await page.getByPlaceholder('First Name').pressSequentially("John", {delay: 300});
-        await page.getByPlaceholder('Last Name').fill("Doe");
-        await page.getByPlaceholder('Zip/Postal Code').fill('123321');
-        await page.locator('#continue').click();
-        await expect(page.locator('[data-test="payment-info-label"]')).toContainText('Payment Information');
-        await page.locator('#finish').click();
-        await expect(page.locator('h2:has-text("Thank you for your order!")')).toBeVisible();
+        await cartPage.clickCheckOut();
+        await checkoutPage.checkoutStep1();
+
+        await checkoutPage2.checkoutStep2();
     }
     else{
         expect(flag).toBeTruthy();

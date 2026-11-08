@@ -18,7 +18,7 @@ export default defineConfig({
     baseURL: 'https://www.saucedemo.com/',
     trace: 'on',
     browserName: 'chromium',
-    headless: true,
+    headless: process.env.CI === 'true',
     viewport: null,
     launchOptions: {
       args: ['--start-maximized'],
