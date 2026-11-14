@@ -13,18 +13,13 @@ class LoginPage{
         this.errorMsg = page.locator('[data-test="error"]');
     }
 
-    async login(username, password, validityCode){
+    async login(username, password){
         await this.page.goto('');
         await expect(this.loginLogo).toContainText('Swag Labs');
         await this.username.fill(username);
         await this.password.fill(password);
         await this.loginBtn.click();
-        if(validityCode === 1){
-            await this.firstProduct.waitFor({ state: 'visible'});
-        }
-        else{
-            await expect(this.errorMsg).toContainText('Username and password do not match');
-        }
+        await this.firstProduct.waitFor({ state: 'visible'});
     }
 
     async logout(){

@@ -9,7 +9,7 @@ let flag=false;
 
 test('Product purchase flow validation', async ({ page }) => {
     let loginPage = new LoginPage(page);
-    await loginPage.login('standard_user', 'secret_sauce',1);
+    await loginPage.login('standard_user', 'secret_sauce');
     
     let productToPurchase = 'Sauce Labs Backpack';
     let productPage = new ProductPage(page);
